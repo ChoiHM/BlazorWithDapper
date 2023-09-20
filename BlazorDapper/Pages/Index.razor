@@ -1,0 +1,81 @@
+﻿@page "/"
+@using BlazorDapper.Core.Dtos;
+@using BlazorDapper.DataAccess.Interface;
+@inject IProductService _productService;
+
+<h2>Products</h2>
+<hr />
+<form>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="ProductName" class="control-label">Product Name</label>
+                <input for="ProductName" class="form-control" @bind="@product.Area_Nm" />
+            </div>
+            <div class="form-group">
+                <label for="Quantity" class="control-label">Quantity</label>
+                <input for="Quantity" class="form-control" @bind="product.CreatedAt" />
+            </div>
+        </div>
+    </div>
+
+    @if (Products == null)
+    {
+        <h3>Please wait, Loading the data.</h3>
+    }
+    else
+    {
+        <table class='table'>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Created</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var prod in Products)
+                {
+                    <tr>
+                        <td>@prod.Area_Nm</td>
+                        <td>@prod.CreatedAt</td>
+                        <td>
+                            <input type="button" value="Delete" @onclick="() => DeleteSales(prod)" class="btn btn-danger" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</form>
+
+
+
+@code{
+
+    IEnumerable<ProductDto>? Products;
+    ProductDto product = new ProductDto();
+    protected override async Task OnInitializedAsync()
+    {
+        await this.GetSalesDetails();
+    }
+    protected async Task GetSalesDetails()
+    {
+        Products = await _productService.GetAll();
+    }
+    protected async Task CreateSales()
+    {
+        await _productService.AddAsync(product);
+        await this.GetSalesDetails();
+    }
+    protected async Task UpdateSales()
+    {
+        await _productService.UpdateAsync(product);
+        await this.GetSalesDetails();
+    }
+    protected async Task DeleteSales(ProductDto prod)
+    {
+        await _productService.DeleteAsync(prod);
+        await this.GetSalesDetails();
+    }
+}
